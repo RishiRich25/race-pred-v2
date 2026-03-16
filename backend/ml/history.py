@@ -71,7 +71,7 @@ def team_elo_calc_past(elo, start_pos, finish_pos, status, k_fact, grid=19):
 driver_data = {"Name":[],
                "Elo":[]}
 
-with open('history_driver.csv', mode='r') as file:
+with open('/race-pred-v2/data/history_driver.csv', mode='r') as file:
     csv_reader = csv.DictReader(file)
     driver_data_list = []
     for row in csv_reader:
@@ -85,7 +85,7 @@ for data in driver_data_list:
 team_data = {"Name":[],
              "Elo":[]}
 
-with open('history_team.csv', mode='r') as file:
+with open('/race-pred-v2/data/history_team.csv', mode='r') as file:
     csv_reader = csv.DictReader(file)
     team_data_list = []
     for row in csv_reader:
@@ -108,7 +108,7 @@ race_stats = {"Driver":[],
               "T_Elo":[]}
 
 #load new data at the end of each year
-yr = 2025
+yr = dt.now().year
 schedule = ff1.get_event_schedule(yr, include_testing=False)
 for rac in range(len(schedule)):
     try:
@@ -247,7 +247,7 @@ for i in range(len(team_data["Name"])):
     row = [team_data["Name"][i], team_data["Elo"][i]]
     rows_2.append(row)
 
-filename_3 = "history_race.csv"
+filename_3 = "/race-pred-v2/data/history_race.csv"
 csvfile_3 = open(filename_3,'a')
 csvwriter_3 = csv.writer(csvfile_3)
 for i in range(len(race_stats['Driver'])):
@@ -258,13 +258,13 @@ for i in range(len(race_stats['Driver'])):
 csvfile_3.close()
 
 
-filename_1 = "history_driver.csv"
+filename_1 = "/race-pred-v2/data/history_driver.csv"
 with open(filename_1, 'w') as csvfile_1:
     csvwriter_1 = csv.writer(csvfile_1)
     csvwriter_1.writerow(["Name","Elo"])
     csvwriter_1.writerows(rows_1)
 
-filename_2 = "history_team.csv"
+filename_2 = "/race-pred-v2/data/history_team.csv"
 with open(filename_2, 'w') as csvfile_2:
     csvwriter_2 = csv.writer(csvfile_2)
     csvwriter_2.writerow(["Name","Elo"])

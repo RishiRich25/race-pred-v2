@@ -7,7 +7,7 @@ import xgboost as xgb
 
 prep = Preprocessor()
 
-df = prep.load_data("history_race.csv")
+df = prep.load_data("/race-pred-v2/data/history_race.csv")
 df = prep.clean_data(df)
 df = prep.feature_engineering(df)
 
@@ -151,4 +151,4 @@ hold_ndcg = float(model.eval(dhold).split(":")[1])
 print("HOLDOUT NDCG:", hold_ndcg)
 
 
-model.save_model("f1_rank_model.json")
+model.save_model("/race-pred-v2/backend/ml/f1_rank_model.json")

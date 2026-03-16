@@ -1,7 +1,7 @@
 import pandas as pd
 import csv
 race_id = 0
-with open("history_race.csv",'r') as file:
+with open("/race-pred-v2/data/history_race.csv",'r') as file:
     data = csv.DictReader(file)
     races = []
     for row in data:
@@ -13,7 +13,7 @@ with open("history_race.csv",'r') as file:
         row['Race_Id'] = race_id
         races.append(row)
 
-with open("history_race.csv",'w') as file:
+with open("/race-pred-v2/data/history_race.csv",'w') as file:
     writer = csv.writer(file)
     writer.writerow(['Driver','Team','Q1','Q2','Q3',
                      'Start','Finish','Track','Rain',

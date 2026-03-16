@@ -78,7 +78,7 @@ def team_elo_calc_this_year(elo, start_pos, finish_pos, status, k_fact, grid=19)
 driver_data = {"Name":[],
             "Elo":[]}
 
-with open('history_driver.csv', mode='r') as file:
+with open('/race-pred-v2/data/history_driver.csv', mode='r') as file:
     csv_reader = csv.DictReader(file)
     driver_data_list = []
     for row in csv_reader:
@@ -92,7 +92,7 @@ for data in driver_data_list:
 team_data = {"Name":[],
             "Elo":[]}
 
-with open('history_team.csv', mode='r') as file:
+with open('/race-pred-v2/data/history_team.csv', mode='r') as file:
     csv_reader = csv.DictReader(file)
     team_data_list = []
     for row in csv_reader:
@@ -253,14 +253,14 @@ for i in range(len(team_data["Name"])):
     rows_2.append(row)
 
 
-filename_1 = "this_year_driver.csv"
+filename_1 = "/race-pred-v2/data/this_year_driver.csv"
 with open(filename_1, 'w') as csvfile_1:
     csvwriter_1 = csv.writer(csvfile_1)
     csvwriter_1.writerow(["Name","Elo"])
     csvwriter_1.writerows(rows_1)
 
 
-filename_2 = "this_year_team.csv"
+filename_2 = "/race-pred-v2/data/this_year_team.csv"
 with open(filename_2, 'w') as csvfile_2:
     csvwriter_2 = csv.writer(csvfile_2)
     csvwriter_2.writerow(["Name","Elo"])
