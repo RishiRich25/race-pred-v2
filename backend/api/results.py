@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from predict import predict_now, predict_prev
+from .predict import predict_now, predict_prev
 import pandas as pd
 
 app = FastAPI(title="F1 Race Prediction API")

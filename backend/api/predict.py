@@ -45,87 +45,92 @@ def predict_now():
         raise Exception("Qualifying not available yet. Come back after qualifying is over on a Saturday")
 
     if len(quali) == 0:
-        raise Exception("Quali Data Not Available. Come back after qualifying is over on a Saturday")
+        round_number -= 1
+        try:
+            session = fastf1.get_session(current_year, round_number, "Q")
+            session.load()
+            quali = session.results
+        except Exception:
+            raise Exception("Qualifying not available yet. Come back after qualifying is over on a Saturday")
 
-    else:
-        race_df = pd.DataFrame({
-            "Driver": quali["DriverId"],
-            "Team": quali["TeamId"],
-            "Q1": quali["Q1"].dt.total_seconds().fillna(0),
-            "Q2": quali["Q2"].dt.total_seconds().fillna(0),
-            "Q3": quali["Q3"].dt.total_seconds().fillna(0),
-            "Start": quali["Position"],
-            "Track": event_name,
-            "Rain": 0
+    race_df = pd.DataFrame({
+        "Driver": quali["DriverId"],
+        "Team": quali["TeamId"],
+        "Q1": quali["Q1"].dt.total_seconds().fillna(0),
+        "Q2": quali["Q2"].dt.total_seconds().fillna(0),
+        "Q3": quali["Q3"].dt.total_seconds().fillna(0),
+        "Start": quali["Position"],
+        "Track": event_name,
+        "Rain": 0
+    })
+
+    driver_elo = pd.read_csv("data/this_year_driver.csv", encoding="latin1")
+    driver_elo = driver_elo.rename(columns={
+        "Name": "Driver"
+    })
+    team_elo = pd.read_csv("data/this_year_team.csv", encoding="latin1")
+    team_elo = team_elo.rename(columns={
+        "Name": "Team"
+    })
+
+    race_df["Driver_Name"] = race_df["Driver"]
+    race_df["Team_Name"] = race_df["Team"]
+
+    race_df = race_df.merge(
+        driver_elo[["Driver", "Elo"]],
+        on="Driver",
+        how="left"
+    ).rename(columns={"Elo": "D_Elo"})
+
+    race_df = race_df.merge(
+        team_elo[["Team", "Elo"]],
+        on="Team",
+        how="left"
+    ).rename(columns={"Elo": "T_Elo"})
+
+    race_df["D_Elo"] = race_df["D_Elo"].fillna(1200)
+    race_df["T_Elo"] = race_df["T_Elo"].fillna(1800)
+
+    FEAT = [
+        "Driver", "Team", "Start",
+        "D_Elo", "T_Elo"
+    ]
+
+    race_df = prep.encode(
+        race_df,
+        mode="update",
+        save=True
+    )
+
+    FEATURES = [
+        "Driver", "Team", "Track", "Rain",
+        "Q1", "Q2", "Q3", "Start",
+        "D_Elo", "T_Elo"
+    ]
+    race_df = race_df.dropna().reset_index(drop=True)
+
+    dtest = xgb.DMatrix(race_df[FEATURES])
+    dtest.set_group([len(race_df)])
+
+    scores = model.predict(dtest)
+
+    race_df["Predicted_Score"] = scores
+    race_df = race_df.sort_values(
+        by="Predicted_Score",
+        ascending=False
+    ).reset_index(drop=True)
+    race_df["Predicted_Position"] = race_df.index + 1
+    return race_df[[
+            "Predicted_Position",
+            "Driver_Name",
+            "Team_Name",
+            "Start",
+            "Predicted_Score"
+        ]].rename(columns={
+            "Driver_Name": "Driver",
+            "Team_Name": "Team",
+            "Start":"Starting Position"
         })
-
-        driver_elo = pd.read_csv("data/this_year_driver.csv", encoding="latin1")
-        driver_elo = driver_elo.rename(columns={
-            "Name": "Driver"
-        })
-        team_elo = pd.read_csv("data/this_year_team.csv", encoding="latin1")
-        team_elo = team_elo.rename(columns={
-            "Name": "Team"
-        })
-
-        race_df["Driver_Name"] = race_df["Driver"]
-        race_df["Team_Name"] = race_df["Team"]
-
-        race_df = race_df.merge(
-            driver_elo[["Driver", "Elo"]],
-            on="Driver",
-            how="left"
-        ).rename(columns={"Elo": "D_Elo"})
-
-        race_df = race_df.merge(
-            team_elo[["Team", "Elo"]],
-            on="Team",
-            how="left"
-        ).rename(columns={"Elo": "T_Elo"})
-
-        race_df["D_Elo"] = race_df["D_Elo"].fillna(1200)
-        race_df["T_Elo"] = race_df["T_Elo"].fillna(1800)
-
-        FEAT = [
-            "Driver", "Team", "Start",
-            "D_Elo", "T_Elo"
-        ]
-
-        race_df = prep.encode(
-            race_df,
-            mode="update",
-            save=True
-        )
-
-        FEATURES = [
-            "Driver", "Team", "Track", "Rain",
-            "Q1", "Q2", "Q3", "Start",
-            "D_Elo", "T_Elo"
-        ]
-        race_df = race_df.dropna().reset_index(drop=True)
-
-        dtest = xgb.DMatrix(race_df[FEATURES])
-        dtest.set_group([len(race_df)])
-
-        scores = model.predict(dtest)
-
-        race_df["Predicted_Score"] = scores
-        race_df = race_df.sort_values(
-            by="Predicted_Score",
-            ascending=False
-        ).reset_index(drop=True)
-        race_df["Predicted_Position"] = race_df.index + 1
-        return race_df[[
-                "Predicted_Position",
-                "Driver_Name",
-                "Team_Name",
-                "Start",
-                "Predicted_Score"
-            ]].rename(columns={
-                "Driver_Name": "Driver",
-                "Team_Name": "Team",
-                "Start":"Starting Position"
-            })
     
 
 
