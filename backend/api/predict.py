@@ -3,23 +3,33 @@ import os
 import xgboost as xgb
 import fastf1
 from datetime import datetime
+import sys
+from pathlib import Path
 
-from ml.preprocessing import Preprocessor
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-cache_dir = "cache"
-if not os.path.exists(cache_dir):
-    os.makedirs(cache_dir)    
+from backend.ml.preprocessing import Preprocessor
 
-fastf1.Cache.enable_cache("cache")
+# Get the project root directory
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+CACHE_DIR = PROJECT_ROOT / "backend" / "api" / "cache"
+ML_DIR = PROJECT_ROOT / "backend" / "ml"
+DATA_DIR = PROJECT_ROOT / "data"
+
+if not CACHE_DIR.exists():
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+fastf1.Cache.enable_cache(str(CACHE_DIR))
 
 def load_model():
     model = xgb.Booster()
-    model.load_model("ml/f1_rank_model.json")
+    model.load_model(str(ML_DIR / "f1_rank_model.json"))
     return model
 
 def load_preprocessor():
     prep = Preprocessor()
-    prep.load_encoders("ml/encoders.pkl")
+    prep.load_encoders(str(ML_DIR / "encoders.pkl"))
     return prep
 
 model = load_model()
@@ -64,11 +74,11 @@ def predict_now():
         "Rain": 0
     })
 
-    driver_elo = pd.read_csv("data/this_year_driver.csv", encoding="latin1")
+    driver_elo = pd.read_csv(str(DATA_DIR / "this_year_driver.csv"), encoding="latin1")
     driver_elo = driver_elo.rename(columns={
         "Name": "Driver"
     })
-    team_elo = pd.read_csv("data/this_year_team.csv", encoding="latin1")
+    team_elo = pd.read_csv(str(DATA_DIR / "this_year_team.csv"), encoding="latin1")
     team_elo = team_elo.rename(columns={
         "Name": "Team"
     })
@@ -174,11 +184,11 @@ def predict_prev(yr, rd):
             "Rain": 0
         })
 
-        driver_elo = pd.read_csv("data/this_year_driver.csv", encoding="latin1")
+        driver_elo = pd.read_csv(str(DATA_DIR / "this_year_driver.csv"), encoding="latin1")
         driver_elo = driver_elo.rename(columns={
             "Name": "Driver"
         })
-        team_elo = pd.read_csv("data/this_year_team.csv", encoding="latin1")
+        team_elo = pd.read_csv(str(DATA_DIR / "this_year_team.csv"), encoding="latin1")
         team_elo = team_elo.rename(columns={
             "Name": "Team"
         })
