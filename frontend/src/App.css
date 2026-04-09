@@ -11,14 +11,14 @@
 
 :root {
   /* Colors */
-  --bg-void: #030304;
-  --bg-surface: #0F1115;
+  --bg-void: #1E3A8A;
+  --bg-surface: #1E3A8A;
   --text-primary: #FFFFFF;
-  --text-muted: #94A3B8;
-  --border-subtle: #1E293B;
-  --accent-primary: #204492;
-  --accent-secondary: #1a3370;
-  --accent-tertiary: #4A7FDB;
+  --text-muted: #FFFFFF;
+  --border-subtle: #FF1E00;
+  --accent-primary: #FF1E00;
+  --accent-secondary: #FF1E00;
+  --accent-tertiary: #FF1E00;
 
   /* Typography */
   --ff-heading: 'Space Grotesk', sans-serif;
