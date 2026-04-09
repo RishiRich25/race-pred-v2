@@ -2,14 +2,22 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import Card from './components/Card';
 import Button from './components/Button';
-import { fetchNextRacePrediction } from './services/api';
+import { fetchNextRacePrediction, fetchRacePrediction } from './services/api';
 
 function App() {
+  // Next race state
   const [predictions, setPredictions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [eventName, setEventName] = useState('');
 
+  // Historical predictions state
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear() - 1);
+  const [selectedRound, setSelectedRound] = useState(1);
+  const [historicalPredictions, setHistoricalPredictions] = useState([]);
+  const [historicalLoading, setHistoricalLoading] = useState(false);
+  const [historicalError, setHistoricalError] = useState(null);
+
+  // Load next race predictions on mount
   useEffect(() => {
     const loadPredictions = async () => {
       try {
@@ -17,10 +25,6 @@ function App() {
         setError(null);
         const data = await fetchNextRacePrediction();
         setPredictions(data);
-        if (data.length > 0) {
-          // Event name should be consistent across all predictions
-          setEventName(data[0].Driver ? 'Next F1 Race Predictions' : '');
-        }
       } catch (err) {
         setError(err.message || 'Failed to load predictions. Make sure the backend API is running on localhost:8000');
         console.error(err);
@@ -32,6 +36,26 @@ function App() {
     loadPredictions();
   }, []);
 
+  // Fetch historical predictions
+  const handleHistoricalPrediction = async () => {
+    try {
+      setHistoricalLoading(true);
+      setHistoricalError(null);
+      setHistoricalPredictions([]);
+      const data = await fetchRacePrediction(selectedYear, selectedRound);
+      setHistoricalPredictions(data);
+    } catch (err) {
+      setHistoricalError(err.message || `Failed to load predictions for ${selectedYear} Round ${selectedRound}`);
+      console.error(err);
+    } finally {
+      setHistoricalLoading(false);
+    }
+  };
+
+  // Generate year options
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: currentYear - 2017 }, (_, i) => 2018 + i);
+
   return (
     <div className="container-app">
       {/* HERO SECTION */}
@@ -42,25 +66,24 @@ function App() {
               F1 Race <span className="gradient-text">Predictor</span>
             </h1>
             <p style={{ fontSize: '1.125rem', color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto' }}>
-              AI-powered predictions for the next Formula 1 race. Powered by XGBoost and Live Elo ratings.
+              AI-powered predictions for Formula 1 races. Powered by XGBoost and Live Elo ratings.
             </p>
           </div>
         </div>
       </section>
 
-      {/* PREDICTIONS SECTION */}
+      {/* LIVE PREDICTIONS SECTION */}
       <section className="section">
         <div className="section-inner">
           <h2 style={{ marginBottom: '2rem', textAlign: 'center' }}>Next Race Predictions</h2>
 
-          {/* Loading State */}
           {loading && (
             <div style={{ textAlign: 'center', padding: '3rem 0' }}>
-              <div style={{ 
-                display: 'inline-block', 
-                width: '40px', 
-                height: '40px', 
-                border: '3px solid rgba(247, 147, 26, 0.3)',
+              <div style={{
+                display: 'inline-block',
+                width: '40px',
+                height: '40px',
+                border: '3px solid rgba(32, 68, 146, 0.3)',
                 borderTop: '3px solid var(--accent-primary)',
                 borderRadius: '50%',
                 animation: 'spin-slow 1s linear infinite'
@@ -69,13 +92,12 @@ function App() {
             </div>
           )}
 
-          {/* Error State */}
           {error && !loading && (
-            <Card style={{ border: '1px solid rgba(234, 88, 12, 0.5)', backgroundColor: 'rgba(234, 88, 12, 0.05)' }}>
-              <h3 style={{ color: 'var(--accent-secondary)', marginBottom: '0.5rem' }}>Connection Error</h3>
+            <Card style={{ border: '1px solid rgba(32, 68, 146, 0.5)', backgroundColor: 'rgba(32, 68, 146, 0.05)' }}>
+              <h3 style={{ color: 'var(--accent-primary)', marginBottom: '0.5rem' }}>Connection Error</h3>
               <p style={{ color: 'var(--text-muted)', margin: 0 }}>{error}</p>
-              <Button 
-                variant="primary" 
+              <Button
+                variant="primary"
                 onClick={() => window.location.reload()}
                 style={{ marginTop: '1rem' }}
               >
@@ -84,10 +106,8 @@ function App() {
             </Card>
           )}
 
-          {/* Data State */}
           {!loading && !error && predictions.length > 0 && (
             <>
-              {/* Summary Card */}
               <Card className="card-glass" style={{ marginBottom: '2rem', textAlign: 'center' }}>
                 <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
                   TOTAL DRIVERS
@@ -97,7 +117,6 @@ function App() {
                 </div>
               </Card>
 
-              {/* Results Table */}
               <div style={{ overflowX: 'auto' }}>
                 <table style={{
                   width: '100%',
@@ -105,7 +124,7 @@ function App() {
                   fontSize: '0.875rem'
                 }}>
                   <thead>
-                    <tr style={{ borderBottom: '2px solid rgba(247, 147, 26, 0.3)' }}>
+                    <tr style={{ borderBottom: '2px solid rgba(32, 68, 146, 0.3)' }}>
                       <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Position</th>
                       <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Driver</th>
                       <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Team</th>
@@ -115,14 +134,14 @@ function App() {
                   </thead>
                   <tbody>
                     {predictions.map((pred, idx) => (
-                      <tr 
-                        key={idx} 
-                        style={{ 
+                      <tr
+                        key={idx}
+                        style={{
                           borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
                           transition: 'background-color 200ms ease'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = 'rgba(247, 147, 26, 0.05)';
+                          e.currentTarget.style.backgroundColor = 'rgba(32, 68, 146, 0.05)';
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.backgroundColor = 'transparent';
@@ -158,20 +177,173 @@ function App() {
                 </table>
               </div>
 
-              {/* Info Card */}
-              <Card style={{ marginTop: '2rem', backgroundColor: 'rgba(255, 214, 0, 0.05)', border: '1px solid rgba(255, 214, 0, 0.3)' }}>
+              <Card style={{ marginTop: '2rem', backgroundColor: 'rgba(74, 127, 219, 0.05)', border: '1px solid rgba(74, 127, 219, 0.3)' }}>
                 <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                  <strong style={{ color: 'var(--accent-tertiary)' }}>💡 Info:</strong> Predictions are based on XGBoost model trained on historical F1 data, current driver/team Elo ratings, and qualifying session times.
+                  <strong style={{ color: 'var(--accent-primary)' }}>💡 Info:</strong> Predictions are based on XGBoost model trained on historical F1 data, current driver/team Elo ratings, and qualifying session times.
                 </p>
               </Card>
             </>
           )}
 
-          {/* Empty State */}
           {!loading && !error && predictions.length === 0 && (
             <Card style={{ textAlign: 'center', padding: '3rem' }}>
               <p style={{ color: 'var(--text-muted)' }}>No predictions available yet. Try again later.</p>
             </Card>
+          )}
+        </div>
+      </section>
+
+      {/* HISTORICAL PREDICTIONS SECTION */}
+      <section className="section">
+        <div className="section-inner">
+          <h2 style={{ marginBottom: '2rem', textAlign: 'center' }}>Historical Race Predictions</h2>
+
+          <Card style={{ marginBottom: '2rem' }}>
+            <div className="form-grid">
+              <div className="form-group">
+                <label htmlFor="year-select">Year</label>
+                <select
+                  id="year-select"
+                  className="select"
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                >
+                  {years.map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="round-input">Round Number</label>
+                <input
+                  id="round-input"
+                  className="input"
+                  type="number"
+                  min="1"
+                  max="24"
+                  value={selectedRound}
+                  onChange={(e) => setSelectedRound(parseInt(e.target.value))}
+                  placeholder="e.g., 1, 2, 3..."
+                />
+              </div>
+            </div>
+
+            <Button
+              variant="primary"
+              onClick={handleHistoricalPrediction}
+              disabled={historicalLoading}
+              style={{ width: '100%' }}
+            >
+              {historicalLoading ? 'Loading...' : 'Get Predictions'}
+            </Button>
+          </Card>
+
+          {/* Historical Loading */}
+          {historicalLoading && (
+            <div style={{ textAlign: 'center', padding: '3rem 0' }}>
+              <div style={{
+                display: 'inline-block',
+                width: '40px',
+                height: '40px',
+                border: '3px solid rgba(32, 68, 146, 0.3)',
+                borderTop: '3px solid var(--accent-primary)',
+                borderRadius: '50%',
+                animation: 'spin-slow 1s linear infinite'
+              }} />
+              <p style={{ marginTop: '1rem', color: 'var(--text-muted)' }}>Loading predictions...</p>
+            </div>
+          )}
+
+          {/* Historical Error */}
+          {historicalError && !historicalLoading && (
+            <Card style={{ border: '1px solid rgba(255, 24, 1, 0.5)', backgroundColor: 'rgba(255, 24, 1, 0.05)' }}>
+              <h3 style={{ color: '#FF1801', marginBottom: '0.5rem' }}>Data Not Available</h3>
+              <p style={{ color: 'var(--text-muted)', margin: 0 }}>{historicalError}</p>
+              <p style={{ color: 'var(--text-muted)', margin: '1rem 0 0 0', fontSize: '0.875rem' }}>
+                Please try a different year or round number. Qualifying data may not be available for all historical races.
+              </p>
+            </Card>
+          )}
+
+          {/* Historical Results */}
+          {!historicalLoading && !historicalError && historicalPredictions.length > 0 && (
+            <>
+              <Card className="card-glass" style={{ marginBottom: '2rem', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+                  {selectedYear} • ROUND {selectedRound}
+                </div>
+                <div style={{ fontSize: '2.5rem', color: 'var(--accent-primary)', fontWeight: 'bold' }}>
+                  {historicalPredictions.length} Drivers
+                </div>
+              </Card>
+
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{
+                  width: '100%',
+                  borderCollapse: 'collapse',
+                  fontSize: '0.875rem'
+                }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid rgba(32, 68, 146, 0.3)' }}>
+                      <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Position</th>
+                      <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Driver</th>
+                      <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Team</th>
+                      <th style={{ padding: '1rem', textAlign: 'center', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Grid</th>
+                      <th style={{ padding: '1rem', textAlign: 'right', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Score</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {historicalPredictions.map((pred, idx) => (
+                      <tr
+                        key={idx}
+                        style={{
+                          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                          transition: 'background-color 200ms ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = 'rgba(32, 68, 146, 0.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                      >
+                        <td style={{ padding: '1rem', color: 'var(--accent-tertiary)', fontWeight: 'bold', fontFamily: 'var(--ff-mono)' }}>
+                          #{pred['Predicted_Position']}
+                        </td>
+                        <td style={{ padding: '1rem', color: 'var(--text-primary)', fontWeight: 500 }}>
+                          {pred['Driver']}
+                        </td>
+                        <td style={{ padding: '1rem', color: 'var(--text-muted)' }}>
+                          {pred['Team']}
+                        </td>
+                        <td style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--ff-mono)' }}>
+                          {pred['Starting Position']}
+                        </td>
+                        <td style={{ padding: '1rem', textAlign: 'right' }}>
+                          <span style={{
+                            background: 'linear-gradient(to right, var(--accent-secondary), var(--accent-primary))',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                            fontFamily: 'var(--ff-mono)',
+                            fontWeight: 'bold'
+                          }}>
+                            {pred['Predicted_Score'].toFixed(4)}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <Card style={{ marginTop: '2rem', backgroundColor: 'rgba(74, 127, 219, 0.05)', border: '1px solid rgba(74, 127, 219, 0.3)' }}>
+                <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+                  <strong style={{ color: 'var(--accent-primary)' }}>📊 Historical Data:</strong> These predictions show what the model would have predicted based on qualifying data from {selectedYear} Round {selectedRound}.
+                </p>
+              </Card>
+            </>
           )}
         </div>
       </section>
