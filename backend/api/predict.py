@@ -47,6 +47,8 @@ def predict_now():
     event_name = next_event["EventName"]
     round_number = next_event["RoundNumber"]
 
+    is_last_race = False  # Track if we're showing last race data
+
     try:
         session = fastf1.get_session(current_year, round_number, "Q")
         session.load()
@@ -56,6 +58,7 @@ def predict_now():
 
     if len(quali) == 0:
         round_number -= 1
+        is_last_race = True  # Mark that we're using previous race data
         try:
             session = fastf1.get_session(current_year, round_number, "Q")
             session.load()
@@ -130,12 +133,17 @@ def predict_now():
         ascending=False
     ).reset_index(drop=True)
     race_df["Predicted_Position"] = race_df.index + 1
+    
+    # Add status to indicate if this is from the last race
+    race_df["Race_Status"] = "Last Race - Upcoming Race Data Not Yet Available" if is_last_race else "Next Race"
+    
     return race_df[[
             "Predicted_Position",
             "Driver_Name",
             "Team_Name",
             "Start",
-            "Predicted_Score"
+            "Predicted_Score",
+            "Race_Status"
         ]].rename(columns={
             "Driver_Name": "Driver",
             "Team_Name": "Team",

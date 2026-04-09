@@ -117,6 +117,14 @@ function App() {
                 </div>
               </Card>
 
+              {predictions[0]?.Race_Status === "Next Race" ? null : (
+                <Card style={{ marginBottom: '2rem', backgroundColor: 'rgba(255, 165, 0, 0.1)', border: '1px solid rgba(255, 165, 0, 0.5)' }}>
+                  <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+                    <strong style={{ color: '#FFA500' }}>⚠️ Note:</strong> {predictions[0]?.Race_Status || 'Upcoming race data not yet available'}
+                  </p>
+                </Card>
+              )}
+
               <div style={{ overflowX: 'auto' }}>
                 <table style={{
                   width: '100%',
