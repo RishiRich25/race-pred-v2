@@ -429,6 +429,126 @@ function App() {
         </div>
       </section>
 
+      <section className="section">
+        <div className="section-inner">
+          <h2 style={{ marginBottom: '1rem', textAlign: 'center' }}>RacePred Project Workflow</h2>
+          <p style={{ color: 'var(--text-muted)', maxWidth: '720px', margin: '0 auto 2rem' }}>
+            RacePred uses <strong>machine learning + FastF1 session data</strong> to predict the finishing order
+            of Formula 1 races based on qualifying results and historical performance. Scroll to the end to see
+            live weekend predictions available on Saturday.
+          </p>
+
+          <Card style={{ marginBottom: '2rem', textAlign: 'center' }}>
+            <h3 style={{ marginBottom: '0.75rem' }}>Project Repository</h3>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
+              For more detailed information, visit the GitHub repository.
+            </p>
+            <a
+              className="btn btn-primary"
+              href="https://www.github.com/rihsirich25/race-pred-v2"
+              target="_blank"
+              rel="noreferrer"
+            >
+              GitHub Repository
+            </a>
+          </Card>
+
+          <h3 style={{ textAlign: 'center', marginBottom: '0.75rem' }}>How the Formula 1 Race Prediction System Works</h3>
+          <p style={{ color: 'var(--text-muted)', textAlign: 'center', marginBottom: '2rem' }}>
+            The complete workflow of the RacePred project, from collecting Formula 1 data to generating race predictions.
+          </p>
+
+          <Card style={{ marginBottom: '2rem' }}>
+            <h3 style={{ marginBottom: '1rem' }}>Pipeline Overview</h3>
+            <pre style={{
+              margin: 0,
+              background: 'rgba(255, 0, 0, 0.05)',
+              borderRadius: '0.75rem',
+              padding: '1.25rem',
+              color: 'var(--text-primary)',
+              overflowX: 'auto',
+              fontFamily: 'var(--ff-mono)',
+              fontSize: '0.875rem'
+            }}>
+{`FastF1 Data Collection
+        |
+        v
+Data Cleaning
+        |
+        v
+Feature Engineering
+        |
+        v
+Driver & Team Elo Ratings
+        |
+        v
+Machine Learning Model (XGBoost)
+        |
+        v
+Prediction Scores
+        |
+        v
+Sorted Finishing Order`}
+            </pre>
+          </Card>
+
+          <div style={{
+            display: 'grid',
+            gap: '1.5rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))'
+          }}>
+            <Card>
+              <h3 style={{ marginBottom: '0.5rem' }}>1. Data Collection</h3>
+              <p style={{ color: 'var(--text-muted)', margin: 0 }}>
+                Pull qualifying, race, driver, team, and lap timing data using the FastF1 API.
+              </p>
+            </Card>
+            <Card>
+              <h3 style={{ marginBottom: '0.5rem' }}>2. Data Cleaning</h3>
+              <p style={{ color: 'var(--text-muted)', margin: 0 }}>
+                Standardize results, handle missing values, and format everything into model-ready tables.
+              </p>
+            </Card>
+            <Card>
+              <h3 style={{ marginBottom: '0.5rem' }}>3. Feature Engineering</h3>
+              <p style={{ color: 'var(--text-muted)', margin: 0 }}>
+                Build numerical features that capture qualifying performance and historical trends.
+              </p>
+            </Card>
+            <Card>
+              <h3 style={{ marginBottom: '0.5rem' }}>4. Elo Ratings</h3>
+              <p style={{ color: 'var(--text-muted)', margin: 0 }}>
+                Compute driver and team Elo ratings to estimate relative strength each weekend.
+              </p>
+            </Card>
+            <Card>
+              <h3 style={{ marginBottom: '0.5rem' }}>5. Model Training</h3>
+              <p style={{ color: 'var(--text-muted)', margin: 0 }}>
+                Train an XGBoost ranking model with tuned hyperparameters and cross-validation.
+              </p>
+            </Card>
+            <Card>
+              <h3 style={{ marginBottom: '0.5rem' }}>6. Race Prediction</h3>
+              <p style={{ color: 'var(--text-muted)', margin: 0 }}>
+                Generate prediction scores for the upcoming race once qualifying ends.
+              </p>
+            </Card>
+            <Card>
+              <h3 style={{ marginBottom: '0.5rem' }}>7. Ranking Drivers</h3>
+              <p style={{ color: 'var(--text-muted)', margin: 0 }}>
+                Sort drivers by model score to produce a predicted finishing order.
+              </p>
+            </Card>
+            <Card>
+              <h3 style={{ marginBottom: '0.5rem' }}>8. Output Results</h3>
+              <p style={{ color: 'var(--text-muted)', margin: 0 }}>
+                Publish the final predicted grid for fans and analysis.
+              </p>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* FOOTER */}
       <footer style={{
         padding: '2rem',
@@ -438,6 +558,15 @@ function App() {
         fontSize: '0.875rem'
       }}>
         <p>F1 Race Predictor • Powered by FastAPI + XGBoost + React</p>
+        <div style={{ maxWidth: '720px', margin: '1rem auto 0' }}>
+          <p style={{ margin: 0, color: 'var(--text-primary)', fontWeight: 600 }}>
+            ⚠️ Disclaimer
+          </p>
+          <p style={{ margin: '0.5rem 0 0', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+            This project is a data science experiment and is not affiliated with Formula 1 or the FIA.
+            Predictions are probabilistic and may not reflect actual race outcomes.
+          </p>
+        </div>
       </footer>
     </div>
   );
