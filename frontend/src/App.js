@@ -56,6 +56,55 @@ function App() {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: currentYear - 2017 }, (_, i) => 2018 + i);
 
+  const teamLogos = [
+    {
+      name: 'Red Bull Racing',
+      logoUrl: '/logos/2026redbullracinglogowhite.avif'
+    },
+    {
+      name: 'Ferrari',
+      logoUrl: '/logos/2026ferrarilogowhite.avif'
+    },
+    {
+      name: 'Mercedes',
+      logoUrl: '/logos/2026mercedeslogowhite.avif'
+    },
+    {
+      name: 'McLaren',
+      logoUrl: '/logos/2026mclarenlogowhite.avif'
+    },
+    {
+      name: 'Aston Martin',
+      logoUrl: '/logos/2026astonmartinlogowhite.avif'
+    },
+    {
+      name: 'Alpine',
+      logoUrl: '/logos/2026alpinelogowhite.avif'
+    },
+    {
+      name: 'Williams',
+      logoUrl: '/logos/2026williamslogowhite.avif'
+    },
+    {
+      name: 'Racing Bulls',
+      logoUrl: '/logos/2026racingbullslogowhite.avif'
+    },
+    {
+      name: 'Cadillac',
+      logoUrl: '/logos/2026cadillaclogowhite.avif'
+    },
+    {
+      name: 'Haas',
+      logoUrl: '/logos/2026haasf1teamlogowhite.avif'
+    },
+    {
+      name: 'Audi',
+      logoUrl: '/logos/2026audilogowhite.avif'
+    }
+  ];
+
+  const logoMarqueeItems = [...teamLogos, ...teamLogos];
+
   return (
     <div className="container-app">
       {/* HERO SECTION */}
@@ -68,6 +117,32 @@ function App() {
             <p style={{ fontSize: '1.125rem', color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto' }}>
               AI-powered predictions for Formula 1 races. Powered by XGBoost and Live Elo ratings.
             </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="section" style={{ paddingTop: 0 }}>
+        <div className="section-inner">
+          <h2 style={{ marginBottom: '2rem', textAlign: 'center' }}>Teams</h2>
+          <div className="logo-marquee" role="presentation">
+            <div className="logo-marquee__track" aria-label="Formula 1 teams">
+              {logoMarqueeItems.map((team, index) => (
+                <div className="logo-marquee__item" key={`${team.name}-${index}`}>
+                  <div className="logo-marquee__image-wrap">
+                    <img
+                      src={team.logoUrl}
+                      alt={`${team.name} logo`}
+                      className="logo-marquee__img"
+                      loading="lazy"
+                      onError={(event) => {
+                        event.currentTarget.style.opacity = '0.3';
+                      }}
+                    />
+                  </div>
+                  <span className="logo-marquee__label">{team.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -126,18 +201,18 @@ function App() {
               )}
 
               <div style={{ overflowX: 'auto' }}>
-                <table style={{
+                <table className="prediction-table" style={{
                   width: '100%',
                   borderCollapse: 'collapse',
                   fontSize: '0.875rem'
                 }}>
                   <thead>
                     <tr style={{ borderBottom: '2px solid rgba(32, 68, 146, 0.3)' }}>
-                      <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Position</th>
-                      <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Driver</th>
-                      <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Team</th>
-                      <th style={{ padding: '1rem', textAlign: 'center', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Grid</th>
-                      <th style={{ padding: '1rem', textAlign: 'right', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Score</th>
+                      <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontWeight: 500 }}>Position</th>
+                      <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontWeight: 500 }}>Driver</th>
+                      <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontWeight: 500 }}>Team</th>
+                      <th style={{ padding: '1rem', textAlign: 'center', color: 'var(--accent-primary)', fontWeight: 500 }}>Grid</th>
+                      <th style={{ padding: '1rem', textAlign: 'right', color: 'var(--accent-primary)', fontWeight: 500 }}>Score</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -155,7 +230,7 @@ function App() {
                           e.currentTarget.style.backgroundColor = 'transparent';
                         }}
                       >
-                        <td style={{ padding: '1rem', color: 'var(--accent-tertiary)', fontWeight: 'bold', fontFamily: 'var(--ff-mono)' }}>
+                        <td style={{ padding: '1rem', color: 'var(--accent-tertiary)', fontWeight: 'bold' }}>
                           #{pred['Predicted_Position']}
                         </td>
                         <td style={{ padding: '1rem', color: 'var(--text-primary)', fontWeight: 500 }}>
@@ -164,7 +239,7 @@ function App() {
                         <td style={{ padding: '1rem', color: 'var(--text-muted)' }}>
                           {pred['Team']}
                         </td>
-                        <td style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--ff-mono)' }}>
+                        <td style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                           {pred['Starting Position']}
                         </td>
                         <td style={{ padding: '1rem', textAlign: 'right' }}>
@@ -173,7 +248,6 @@ function App() {
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
                             backgroundClip: 'text',
-                            fontFamily: 'var(--ff-mono)',
                             fontWeight: 'bold'
                           }}>
                             {pred['Predicted_Score'].toFixed(4)}
@@ -287,18 +361,18 @@ function App() {
               </Card>
 
               <div style={{ overflowX: 'auto' }}>
-                <table style={{
+                <table className="prediction-table" style={{
                   width: '100%',
                   borderCollapse: 'collapse',
                   fontSize: '0.875rem'
                 }}>
                   <thead>
                     <tr style={{ borderBottom: '2px solid rgba(32, 68, 146, 0.3)' }}>
-                      <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Position</th>
-                      <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Driver</th>
-                      <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Team</th>
-                      <th style={{ padding: '1rem', textAlign: 'center', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Grid</th>
-                      <th style={{ padding: '1rem', textAlign: 'right', color: 'var(--accent-primary)', fontFamily: 'var(--ff-mono)', fontWeight: 500 }}>Score</th>
+                      <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontWeight: 500 }}>Position</th>
+                      <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontWeight: 500 }}>Driver</th>
+                      <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--accent-primary)', fontWeight: 500 }}>Team</th>
+                      <th style={{ padding: '1rem', textAlign: 'center', color: 'var(--accent-primary)', fontWeight: 500 }}>Grid</th>
+                      <th style={{ padding: '1rem', textAlign: 'right', color: 'var(--accent-primary)', fontWeight: 500 }}>Score</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -316,7 +390,7 @@ function App() {
                           e.currentTarget.style.backgroundColor = 'transparent';
                         }}
                       >
-                        <td style={{ padding: '1rem', color: 'var(--accent-tertiary)', fontWeight: 'bold', fontFamily: 'var(--ff-mono)' }}>
+                        <td style={{ padding: '1rem', color: 'var(--accent-tertiary)', fontWeight: 'bold' }}>
                           #{pred['Predicted_Position']}
                         </td>
                         <td style={{ padding: '1rem', color: 'var(--text-primary)', fontWeight: 500 }}>
@@ -325,7 +399,7 @@ function App() {
                         <td style={{ padding: '1rem', color: 'var(--text-muted)' }}>
                           {pred['Team']}
                         </td>
-                        <td style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--ff-mono)' }}>
+                        <td style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                           {pred['Starting Position']}
                         </td>
                         <td style={{ padding: '1rem', textAlign: 'right' }}>
@@ -334,7 +408,6 @@ function App() {
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
                             backgroundClip: 'text',
-                            fontFamily: 'var(--ff-mono)',
                             fontWeight: 'bold'
                           }}>
                             {pred['Predicted_Score'].toFixed(4)}

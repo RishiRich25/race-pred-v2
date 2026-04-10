@@ -3,7 +3,7 @@
    ============================================ */
 
 /* Font Imports */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 /* ============================================
    GLOBAL TOKENS
@@ -24,6 +24,7 @@
   --ff-heading: 'Space Grotesk', sans-serif;
   --ff-body: 'Inter', sans-serif;
   --ff-mono: 'JetBrains Mono', monospace;
+  --ff-f1: 'Saira Condensed', 'Space Grotesk', sans-serif;
 
   /* Spacing */
   --space-base: 8px;
@@ -302,6 +303,15 @@ h3 {
   }
 }
 
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
@@ -330,6 +340,62 @@ h3 {
 .section-inner {
   max-width: 80rem;
   margin: 0 auto;
+}
+
+/* ============================================
+   LOGO MARQUEE
+   ============================================ */
+
+.logo-marquee {
+  position: relative;
+  overflow: hidden;
+  padding: 1.25rem 0;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 0, 0, 0.15);
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.7), rgba(255, 0, 0, 0.05));
+}
+
+.logo-marquee__track {
+  display: flex;
+  gap: 2.5rem;
+  align-items: center;
+  width: max-content;
+  animation: marquee-scroll 28s linear infinite;
+  padding: 0 2rem;
+}
+
+.logo-marquee__item {
+  display: grid;
+  gap: 0.5rem;
+  place-items: center;
+  min-width: 140px;
+}
+
+.logo-marquee__image-wrap {
+  display: grid;
+  place-items: center;
+  width: 140px;
+  height: 64px;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(10, 10, 10, 0.9);
+  border: 1px solid rgba(255, 0, 0, 0.35);
+  box-shadow: inset 0 0 12px rgba(255, 0, 0, 0.15);
+}
+
+.logo-marquee__img {
+  width: 104px;
+  height: 44px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 12px rgba(255, 0, 0, 0.2));
+}
+
+.logo-marquee__label {
+  font-family: var(--ff-heading);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-primary);
 }
 
 /* ============================================
@@ -368,6 +434,20 @@ h3 {
 }
 
 /* ============================================
+   PREDICTION TABLE
+   ============================================ */
+
+.prediction-table {
+  font-family: var(--ff-f1);
+  letter-spacing: 0.02em;
+}
+
+.prediction-table th,
+.prediction-table td {
+  font-family: var(--ff-f1);
+}
+
+/* ============================================
    RESPONSIVE UTILITIES
    ============================================ */
 
@@ -390,6 +470,20 @@ h3 {
 
   .form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .logo-marquee__item {
+    min-width: 110px;
+  }
+
+  .logo-marquee__image-wrap {
+    width: 120px;
+    height: 56px;
+  }
+
+  .logo-marquee__img {
+    width: 88px;
+    height: 36px;
   }
 }
 
