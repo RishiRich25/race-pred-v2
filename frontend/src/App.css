@@ -11,14 +11,14 @@
 
 :root {
   /* Colors */
-  --bg-void: #001a61;
-  --bg-surface: #1E3A8A;
-  --text-primary: #FFFFFF;
-  --text-muted: #FFFFFF;
-  --border-subtle: #FF1E00;
-  --accent-primary: #FF1E00;
-  --accent-secondary: #FF1E00;
-  --accent-tertiary: #FF1E00;
+  --bg-void: #FFFFFF;
+  --bg-surface: #FFFFFF;
+  --text-primary: #FF0000;
+  --text-muted: #FF0000;
+  --border-subtle: #FF0000;
+  --accent-primary: #FF0000;
+  --accent-secondary: #FF0000;
+  --accent-tertiary: #FF0000;
 
   /* Typography */
   --ff-heading: 'Space Grotesk', sans-serif;
@@ -119,13 +119,13 @@ h3 {
 /* Primary Button */
 .btn-primary {
   background: linear-gradient(to right, var(--accent-secondary), var(--accent-primary));
-  color: var(--text-primary);
-  box-shadow: 0 0 20px -5px rgba(32, 68, 146, 0.5);
+  color: #FFFFFF;
+  box-shadow: 0 0 20px -5px rgba(255, 0, 0, 0.35);
 }
 
 .btn-primary:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 30px -5px rgba(74, 127, 219, 0.6);
+  box-shadow: 0 0 30px -5px rgba(255, 0, 0, 0.5);
 }
 
 .btn-primary:active {
@@ -136,13 +136,13 @@ h3 {
 .btn-outline {
   background-color: transparent;
   color: var(--text-primary);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 0, 0, 0.5);
   transition: all var(--transition-smooth);
 }
 
 .btn-outline:hover {
-  border-color: var(--text-primary);
-  background-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--accent-primary);
+  background-color: rgba(255, 0, 0, 0.1);
 }
 
 /* Ghost Button */
@@ -154,7 +154,7 @@ h3 {
 }
 
 .btn-ghost:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 0, 0, 0.1);
   color: var(--accent-primary);
 }
 
@@ -187,7 +187,7 @@ h3 {
 
 .card {
   background-color: var(--bg-surface);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.2);
   border-radius: 1rem;
   padding: 2rem;
   transition: all var(--transition-smooth);
@@ -195,15 +195,15 @@ h3 {
 
 .card:hover {
   transform: translateY(-4px);
-  border-color: rgba(74, 127, 219, 0.5);
-  box-shadow: 0 0 30px -10px rgba(74, 127, 219, 0.2);
+  border-color: rgba(255, 0, 0, 0.6);
+  box-shadow: 0 0 30px -10px rgba(255, 0, 0, 0.35);
 }
 
 /* Glass Card */
 .card-glass {
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.2);
 }
 
 /* ============================================
@@ -211,9 +211,9 @@ h3 {
    ============================================ */
 
 .input {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(255, 0, 0, 0.05);
   border: none;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 2px solid rgba(255, 0, 0, 0.4);
   border-radius: 0.5rem 0.5rem 0 0;
   height: 48px;
   padding: 0.5rem 1rem;
@@ -225,13 +225,13 @@ h3 {
 }
 
 .input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 0, 0, 0.5);
 }
 
 .input:focus-visible {
   outline: none;
   border-bottom-color: var(--accent-primary);
-  box-shadow: 0 10px 20px -10px rgba(74, 127, 219, 0.3);
+  box-shadow: 0 10px 20px -10px rgba(255, 0, 0, 0.35);
 }
 
 .input:disabled {
@@ -241,9 +241,9 @@ h3 {
 
 /* SELECT STYLES */
 .select {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(255, 0, 0, 0.05);
   border: none;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 2px solid rgba(255, 0, 0, 0.4);
   border-radius: 0.5rem 0.5rem 0 0;
   height: 48px;
   padding: 0.5rem 1rem;
@@ -263,7 +263,7 @@ h3 {
 .select:focus-visible {
   outline: none;
   border-bottom-color: var(--accent-primary);
-  box-shadow: 0 10px 20px -10px rgba(74, 127, 219, 0.3);
+  box-shadow: 0 10px 20px -10px rgba(255, 0, 0, 0.35);
 }
 
 .select:disabled {
@@ -348,11 +348,11 @@ h3 {
    ============================================ */
 
 .glow-orange {
-  box-shadow: 0 0 20px -5px rgba(74, 127, 219, 0.6);
+  box-shadow: 0 0 20px -5px rgba(255, 0, 0, 0.5);
 }
 
 .glow-gold {
-  box-shadow: 0 0 20px rgba(74, 127, 219, 0.3);
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.35);
 }
 
 /* ============================================
@@ -363,8 +363,8 @@ h3 {
   position: relative;
   background-size: 50px 50px;
   background-image:
-    linear-gradient(to right, rgba(30, 41, 59, 0.3) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(30, 41, 59, 0.3) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 0, 0, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 0, 0, 0.15) 1px, transparent 1px);
 }
 
 /* ============================================
