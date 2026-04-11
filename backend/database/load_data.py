@@ -82,12 +82,14 @@ def import_csv_to_db(csv_path):
         cursor.close()
 
 if __name__ == "__main__":
-    csv_file = "c:\\Users\\DELL\\Desktop\\db_data_initial.csv"
-    
+    # Use CSV_PATH env var if provided; otherwise look for a local file next to the repo.
+    default_csv = Path(__file__).parent.parent.parent / "data" / "race_predictions.csv"
+    csv_file = os.getenv("CSV_PATH", str(default_csv))
+
     if not os.path.exists(csv_file):
         print(f"Error: CSV file not found at {csv_file}")
         sys.exit(1)
-    
+
     try:
         import_csv_to_db(csv_file)
     except Exception as e:

@@ -26,10 +26,10 @@ class DatabaseConnection:
         
         if user_type == 'root':
             self.user = os.getenv('DB_USER', 'root')
-            self.password = os.getenv('DB_PASSWORD', 'Rishit123$')
+            self.password = os.getenv('DB_PASSWORD', '')
         elif user_type == 'full_user':
             self.user = os.getenv('DB_USER_FULL', 'full_user')
-            self.password = os.getenv('DB_PASSWORD_FULL', 'FullUser123$')
+            self.password = os.getenv('DB_PASSWORD_FULL', '')
         else:
             raise ValueError("user_type must be 'root' or 'full_user'")
         

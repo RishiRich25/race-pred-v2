@@ -14,10 +14,11 @@ load_dotenv()
 DB_HOST = os.getenv('DB_HOST', 'localhost')
 DB_PORT = int(os.getenv('DB_PORT', 3306))
 DB_USER = os.getenv('DB_USER', 'root')
-DB_PASSWORD = os.getenv('DB_PASSWORD', 'Rishit123$')
+DB_PASSWORD = os.getenv('DB_PASSWORD', '')
 DB_NAME = os.getenv('DB_NAME', 'f1_predictions')
 DB_USER_FULL = os.getenv('DB_USER_FULL', 'full_user')
 DB_PASSWORD_FULL = os.getenv('DB_PASSWORD_FULL', '')
+DB_USER_HOST = os.getenv('DB_USER_HOST', '%')
 
 def create_database():
     """Create the main database."""
@@ -107,23 +108,29 @@ def create_users():
         
         # Create full_user if it doesn't exist
         try:
-            cursor.execute(f"DROP USER IF EXISTS '{DB_USER_FULL}'@'localhost'")
-            print(f"✓ Dropped existing user '{DB_USER_FULL}'")
+            cursor.execute(f"DROP USER IF EXISTS '{DB_USER_FULL}'@'{DB_USER_HOST}'")
+            print(f"✓ Dropped existing user '{DB_USER_FULL}'@'{DB_USER_HOST}'")
         except:
             pass
-        
-        # Create new full_user with a secure default password
-        password = DB_PASSWORD_FULL if DB_PASSWORD_FULL else 'FullUser123$'
-        cursor.execute(f"CREATE USER '{DB_USER_FULL}'@'localhost' IDENTIFIED BY %s", (password,))
-        print(f"✓ User '{DB_USER_FULL}' created with password: {password}")
+
+        if not DB_PASSWORD_FULL:
+            raise ValueError("DB_PASSWORD_FULL must be set to create the full user")
+
+        cursor.execute(
+            f"CREATE USER '{DB_USER_FULL}'@'{DB_USER_HOST}' IDENTIFIED BY %s",
+            (DB_PASSWORD_FULL,)
+        )
+        print(f"✓ User '{DB_USER_FULL}' created for host '{DB_USER_HOST}'")
         
         # Grant privileges
-        cursor.execute(f"GRANT SELECT, INSERT, UPDATE ON {DB_NAME}.* TO '{DB_USER_FULL}'@'localhost'")
+        cursor.execute(
+            f"GRANT SELECT, INSERT, UPDATE ON {DB_NAME}.* TO '{DB_USER_FULL}'@'{DB_USER_HOST}'"
+        )
         print(f"✓ Granted SELECT, INSERT, UPDATE privileges to '{DB_USER_FULL}'")
         
         # Grant root all privileges
-        cursor.execute(f"GRANT ALL PRIVILEGES ON {DB_NAME}.* TO '{DB_USER}'@'localhost'")
-        print(f"✓ Granted ALL PRIVILEGES to '{DB_USER}'")
+        cursor.execute(f"GRANT ALL PRIVILEGES ON {DB_NAME}.* TO '{DB_USER}'@'{DB_USER_HOST}'")
+        print(f"✓ Granted ALL PRIVILEGES to '{DB_USER}'@'{DB_USER_HOST}'")
         
         cursor.execute("FLUSH PRIVILEGES")
         print("✓ Privileges flushed")
