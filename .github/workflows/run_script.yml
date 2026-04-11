@@ -21,7 +21,7 @@ jobs:
       - name: Check if CSV already updated today
         id: check_update
         run: |
-          LAST_COMMIT_DATE=$(git log -1 --format=%cd --date=short -- this_year_team.csv 2>/dev/null || echo "none")
+          LAST_COMMIT_DATE=$(git log -1 --format=%cd --date=short -- data/this_year_team.csv 2>/dev/null || echo "none")
           TODAY=$(date +%Y-%m-%d)
 
           echo "Last update: $LAST_COMMIT_DATE"
@@ -43,7 +43,7 @@ jobs:
         if: steps.check_update.outputs.already_updated == 'false'
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: Install dependencies
         if: steps.check_update.outputs.already_updated == 'false'
@@ -61,7 +61,7 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
 
-          git add this_year_driver.csv this_year_team.csv
+          git add data/this_year_driver.csv data/this_year_team.csv
 
           if git diff --staged --quiet; then
             echo "No CSV changes. Will retry next hour."
