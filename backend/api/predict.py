@@ -10,7 +10,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from backend.ml.preprocessing import Preprocessor
-from backend.database.connection import get_connection
+
 
 # Get the project root directory
 PROJECT_ROOT = Path(__file__).parent.parent.parent
@@ -163,143 +163,58 @@ def predict_prev(yr, rd):
     if rd <= 0 or rd > 24:
         raise Exception(f"Round number must be between 1 and 24 for the year {yr}")
 
-    query = """
-        SELECT
-            driver,
-            team,
-            q1,
-            q2,
-            q3,
-            start_position,
-            track,
-            rain,
-            d_elo,
-            t_elo
-        FROM race_predictions
-        WHERE year = %s AND round = %s
-        ORDER BY start_position ASC
-    """
+    try:
+        schedule = fastf1.get_event_schedule(yr, backend="ergast")
+    except:
+        raise Exception("Could not load schedule. Please try again later.")
 
-    with get_connection("full_user") as db:
-        rows = db.execute_query(query, (yr, rd))
+    next_event = schedule[schedule["RoundNumber"] == rd].iloc[0]
+    event_name = next_event["EventName"]
 
-    if not rows:
-        # Fallback to FastF1 if DB data is missing.
-        try:
-            session = fastf1.get_session(yr, rd, "Q")
-            session.load()
-            quali = session.results
-        except Exception:
-            raise Exception(
-                "Quali Data Not Available. Please check that the race data is loaded in the database"
-            )
+    try:
+        session = fastf1.get_session(yr, rd, "Q")
+        session.load()
+        quali = session.results
+    except Exception:
+        raise Exception("Qualifying not available yet. Come back after qualifying is over on a Saturday")
 
-        if len(quali) == 0:
-            raise Exception(
-                "Quali Data Not Available. Please check that the race data is loaded in the database"
-            )
+    if len(quali) == 0:
+        raise Exception("Quali Data Not Available. Come back after qualifying is over on a Saturday")
 
-        event_name = session.event["EventName"]
-
-        race_df = pd.DataFrame({
-            "Driver": quali["DriverId"],
-            "Team": quali["TeamId"],
-            "Q1": quali["Q1"].dt.total_seconds().fillna(0),
-            "Q2": quali["Q2"].dt.total_seconds().fillna(0),
-            "Q3": quali["Q3"].dt.total_seconds().fillna(0),
-            "Start": quali["Position"],
-            "Track": event_name,
-            "Rain": 0
-        })
-
-        if yr == current_year:
-            driver_elo_path = DATA_DIR / "this_year_driver.csv"
-            team_elo_path = DATA_DIR / "this_year_team.csv"
-        else:
-            driver_elo_path = DATA_DIR / "history_driver.csv"
-            team_elo_path = DATA_DIR / "history_team.csv"
-
-        driver_elo = pd.read_csv(str(driver_elo_path), encoding="latin1").rename(
-            columns={"Name": "Driver"}
-        )
-        team_elo = pd.read_csv(str(team_elo_path), encoding="latin1").rename(
-            columns={"Name": "Team"}
-        )
-
-        race_df["Driver_Name"] = race_df["Driver"]
-        race_df["Team_Name"] = race_df["Team"]
-
-        race_df = race_df.merge(
-            driver_elo[["Driver", "Elo"]],
-            on="Driver",
-            how="left"
-        ).rename(columns={"Elo": "D_Elo"})
-
-        race_df = race_df.merge(
-            team_elo[["Team", "Elo"]],
-            on="Team",
-            how="left"
-        ).rename(columns={"Elo": "T_Elo"})
-
-        race_df["D_Elo"] = race_df["D_Elo"].fillna(1200)
-        race_df["T_Elo"] = race_df["T_Elo"].fillna(1800)
-
-        race_df = prep.encode(
-            race_df,
-            mode="update",
-            save=True
-        )
-
-        FEATURES = [
-            "Driver", "Team", "Track", "Rain",
-            "Q1", "Q2", "Q3", "Start",
-            "D_Elo", "T_Elo"
-        ]
-        race_df = race_df.dropna().reset_index(drop=True)
-
-        dtest = xgb.DMatrix(race_df[FEATURES])
-        dtest.set_group([len(race_df)])
-
-        scores = model.predict(dtest)
-
-        race_df["Predicted_Score"] = scores
-        race_df = race_df.sort_values(
-            by="Predicted_Score",
-            ascending=False
-        ).reset_index(drop=True)
-        race_df["Predicted_Position"] = race_df.index + 1
-        return race_df[[
-                "Predicted_Position",
-                "Driver_Name",
-                "Team_Name",
-                "Start",
-                "Predicted_Score"
-            ]].rename(columns={
-                "Driver_Name": "Driver",
-                "Team_Name": "Team",
-                "Start":"Starting Position"
-            })
-
-    race_df = pd.DataFrame(rows).rename(columns={
-        "driver": "Driver",
-        "team": "Team",
-        "q1": "Q1",
-        "q2": "Q2",
-        "q3": "Q3",
-        "start_position": "Start",
-        "track": "Track",
-        "rain": "Rain",
-        "d_elo": "D_Elo",
-        "t_elo": "T_Elo"
+    race_df = pd.DataFrame({
+        "Driver": quali["DriverId"],
+        "Team": quali["TeamId"],
+        "Q1": quali["Q1"].dt.total_seconds().fillna(0),
+        "Q2": quali["Q2"].dt.total_seconds().fillna(0),
+        "Q3": quali["Q3"].dt.total_seconds().fillna(0),
+        "Start": quali["Position"],
+        "Track": event_name,
+        "Rain": 0
     })
 
-    race_df["Q1"] = race_df["Q1"].fillna(0)
-    race_df["Q2"] = race_df["Q2"].fillna(0)
-    race_df["Q3"] = race_df["Q3"].fillna(0)
-    race_df["Rain"] = race_df["Rain"].fillna(False).astype(int)
+    driver_elo = pd.read_csv(str(DATA_DIR / "this_year_driver.csv"), encoding="latin1")
+    driver_elo = driver_elo.rename(columns={
+        "Name": "Driver"
+    })
+    team_elo = pd.read_csv(str(DATA_DIR / "this_year_team.csv"), encoding="latin1")
+    team_elo = team_elo.rename(columns={
+        "Name": "Team"
+    })
 
     race_df["Driver_Name"] = race_df["Driver"]
     race_df["Team_Name"] = race_df["Team"]
+
+    race_df = race_df.merge(
+        driver_elo[["Driver", "Elo"]],
+        on="Driver",
+        how="left"
+    ).rename(columns={"Elo": "D_Elo"})
+
+    race_df = race_df.merge(
+        team_elo[["Team", "Elo"]],
+        on="Team",
+        how="left"
+    ).rename(columns={"Elo": "T_Elo"})
 
     race_df["D_Elo"] = race_df["D_Elo"].fillna(1200)
     race_df["T_Elo"] = race_df["T_Elo"].fillna(1800)
