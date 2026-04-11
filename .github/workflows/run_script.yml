@@ -53,7 +53,7 @@ jobs:
 
       - name: Run script
         if: steps.check_update.outputs.already_updated == 'false'
-        run: python current_year.py
+        run: python backend/ml/current_year.py
 
       - name: Commit changes
         if: steps.check_update.outputs.already_updated == 'false'
